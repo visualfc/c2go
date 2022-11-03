@@ -212,10 +212,55 @@ func compileCompoundStmt(ctx *blockCtx, cStmt *ast.Node) {
 	cb.End()
 }
 
+/*
+func compileComplicatedDoStmt(ctx *blockCtx, stmt *ast.Node) {
+	loop := ctx.enterLoop()
+	defer ctx.leave(loop)
+
+	loop.labelStart(ctx)
+	compileSub(ctx, stmt.Inner[0])
+
+	cb := ctx.cb.If()
+	compileExpr(ctx, stmt.Inner[1])
+	castToBoolExpr(cb)
+	cb.Then().Goto(loop.start).End()
+
+	if loop.done != nil {
+		cb.Label(loop.done)
+	}
+}
+*/
 // -----------------------------------------------------------------------------
+func compileComplicatedForStmt(ctx *blockCtx, stmt *ast.Node) {
+	loop := ctx.enterLoop()
+	defer ctx.leave(loop)
+
+	compileInitStmt(ctx, stmt.Inner[0])
+	if stmt := stmt.Inner[1]; stmt.Kind != "" {
+		log.Panicln("compileForStmt: unexpected -", stmt.Kind)
+	}
+
+	loop.labelStart(ctx)
+	done := loop.EndLabel(ctx)
+
+	cb := ctx.cb
+	if cond := stmt.Inner[2]; cond.Kind != "" {
+		cb = cb.If()
+		compileExpr(ctx, stmt.Inner[2])
+		castToBoolExpr(cb)
+		cb.UnaryOp(token.NOT).Then().Goto(done).End()
+	}
+	compileSub(ctx, stmt.Inner[4])
+	if postStmt := stmt.Inner[3]; postStmt.Kind != "" {
+		compileStmt(ctx, postStmt)
+	}
+	cb.Goto(loop.start).Label(done)
+}
 
 func compileForStmt(ctx *blockCtx, stmt *ast.Node) {
 	if stmt.Complicated {
+		compileComplicatedForStmt(ctx, stmt)
+		return
 		log.Panicln("TODO: compileComplicatedForStmt")
 	}
 
