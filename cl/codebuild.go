@@ -513,6 +513,9 @@ func wstringLit(cb *gox.CodeBuilder, s string, typ types.Type) {
 func arrayToElemPtr(cb *gox.CodeBuilder) {
 	arr := cb.InternalStack().Pop()
 	t, _ := gox.DerefType(arr.Type)
+	if sub, ok := t.(*gox.SubstType); ok {
+		t = sub.Real.Type()
+	}
 	elem := t.(*types.Array).Elem()
 	cb.Typ(ctypes.NewPointer(elem)).Typ(ctypes.UnsafePointer).
 		Val(arr).UnaryOp(token.AND).Call(1).Call(1)
