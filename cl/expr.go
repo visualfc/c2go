@@ -223,7 +223,7 @@ func compileImplicitCastExpr(ctx *blockCtx, v *ast.Node) {
 			if c := v.Inner[0].ValueCategory; c == ast.RValue || c == ast.PRValue {
 				arrayToElemPtrClosure(cb)
 			} else {
-				arrayToElemPtr(cb)
+				arrayToElemPtr(ctx, cb, v.Inner[0])
 			}
 		}
 	case ast.IntegralCast, ast.FloatingCast, ast.BitCast, ast.IntegralToFloating,
