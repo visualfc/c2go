@@ -257,7 +257,6 @@ func (p *blockCtx) lookupParent(name string) types.Object {
 
 func (p *blockCtx) newVar(scope *types.Scope, pos token.Pos, typ types.Type, name string) (ret *gox.VarDecl, inVBlock bool) {
 	cb, pkg := p.cb, p.pkg
-
 	inGlobal := scope == pkg.Types.Scope()
 	if !inGlobal {
 		inVBlock = cb.InVBlock()
