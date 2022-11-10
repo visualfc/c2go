@@ -630,19 +630,6 @@ void test() {
 }`)
 }
 
-func TestInitListExpr(t *testing.T) {
-	testFunc(t, "testInitListExpr", `
-void test() {
-	int a = 255;
-	unsigned char ws = (unsigned char){a};
-	const char *buf = (const char*){"hello"};
-}`, `func test() {
-	var a int32 = int32(255)
-	var ws uint8 = uint8(a)
-	var buf *int8 = (*int8)(unsafe.Pointer(&[6]int8{'h', 'e', 'l', 'l', 'o', '\x00'}))
-}`)
-}
-
 func TestNegBool(t *testing.T) {
 	testFunc(t, "testNegBool", `
 void test() {
@@ -720,6 +707,30 @@ end:
 	return
 _cgol_3:
 	return
+}`)
+}
+
+func TestInitList(t *testing.T) {
+	testFunc(t, "testInitList", `
+void test1(int);
+void test2(int *);
+void test3(char *);
+void test4(const char**);
+void test() {
+	int a;
+	const char *b = "hello";
+	test1((int){a});
+	test2(&(int){a});
+	test3(&(char){a});
+	test4(&(const char*){b});
+}
+`, `func test() {
+	var a int32
+	var b *int8 = (*int8)(unsafe.Pointer(&[6]int8{'h', 'e', 'l', 'l', 'o', '\x00'}))
+	test1([]int32{a}[0])
+	test2(&[]int32{a}[0])
+	test3(&[]int8{int8(a)}[0])
+	test4(&[]*int8{b}[0])
 }`)
 }
 

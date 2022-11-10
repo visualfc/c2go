@@ -76,6 +76,8 @@ func compileExprEx(ctx *blockCtx, expr *ast.Node, prompt string, flags int) {
 		compileCompoundLiteralExpr(ctx, expr)
 	case ast.InitListExpr:
 		compileExprEx(ctx, expr.Inner[0], prompt, flags)
+		t := toType(ctx, expr.Type, flags)
+		ctx.cb.SliceLit(types.NewSlice(t), 1).Val(0).Index(1, false)
 	default:
 		log.Panicln(prompt, expr.Kind)
 	}
