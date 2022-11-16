@@ -499,7 +499,7 @@ func wstringLit(cb *gox.CodeBuilder, s string, typ types.Type) {
 	}
 	eos := true
 	if typ == nil {
-		typ = types.NewArray(types.Typ[types.Int32], int64(n+1))
+		typ = types.NewArray(ctypes.WcharT, int64(n+1))
 	} else if t, ok := typ.(*types.Array); ok {
 		eos = int(t.Len()) > n
 	}
